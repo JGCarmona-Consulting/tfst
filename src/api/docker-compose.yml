@@ -11,7 +11,7 @@ services:
       - tfst-network
     ports:
       - "7100:7100"  # HTTP
-      - "7101:7001"  # HTTPS
+      - "7101:7101"  # HTTPS
     build:
       context: .
       dockerfile: TheFullStackTeam.API/Dockerfile
@@ -21,7 +21,7 @@ services:
       - tfst-seq
       - tfst-mongo
     volumes:
-      - ${USERPROFILE}/.aspnet/https:/https/
+      - ${APPDATA}/ASP.NET/Https:/home/app/.aspnet/https:ro
 
   tfst-sqlserver:
     image: mcr.microsoft.com/mssql/server:2019-latest
@@ -45,7 +45,7 @@ services:
     container_name: RabbitMqContainer
     environment:
       RABBITMQ_DEFAULT_USER: qnauser
-      RABBITMQ_DEFAULT_PASS: P@ssw0rd!
+      RABBITMQ_DEFAULT_PASS: Rabbit123*
     ports:
       - "5672:5672"  # AMQP
       - "15672:15672" # Management

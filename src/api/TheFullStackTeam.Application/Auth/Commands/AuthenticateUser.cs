@@ -31,7 +31,7 @@ namespace TheFullStackTeam.Application.Auth.Commands
 
         public async Task<TokenResponse> Handle(AuthenticateUserCommand request, CancellationToken cancellationToken)
         {
-            var key = Encoding.ASCII.GetBytes(_configuration["Jwt:Key"] ?? throw new InvalidOperationException("JWT key not configured."));
+            var key = Encoding.ASCII.GetBytes(_configuration["JwtSettings:Key"] ?? throw new InvalidOperationException("JWT key not configured."));
 
             var account = await _accountRepository.GetByEmailAsync(request.Username);
             if (account == null || !_passwordHasher.Verify(account.PasswordHash, request.Password))

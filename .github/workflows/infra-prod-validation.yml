@@ -1,0 +1,28 @@
+# .github/workflows/infra-prod-validation.yml
+name: Validate Infrastructure for PROD
+
+on:
+  pull_request:
+    branches:
+      - main
+    paths:
+      - infrastructure/**
+
+  workflow_dispatch:
+
+jobs:
+  validate_prod_infra:
+    uses: ./.github/workflows/validate-infra.yml
+    with:
+      environment: prod
+      working_directory: infrastructure/envs/prod
+      terraform_modules_directory: infrastructure/modules
+    secrets:
+      AZURE_CREDENTIALS: ${{ secrets.AZURE_CREDENTIALS }}
+      ARM_CLIENT_ID: ${{ secrets.ARM_CLIENT_ID }}
+      ARM_CLIENT_SECRET: ${{ secrets.ARM_CLIENT_SECRET }}
+      ARM_SUBSCRIPTION_ID: ${{ secrets.ARM_SUBSCRIPTION_ID }}
+      ARM_TENANT_ID: ${{ secrets.ARM_TENANT_ID }}
+      SQL_ADMIN_PASSWORD: ${{ secrets.SQL_ADMIN_PASSWORD }}
+      SQL_ADMIN_USERNAME: ${{ secrets.SQL_ADMIN_USERNAME }}
+

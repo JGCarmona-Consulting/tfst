@@ -15,10 +15,6 @@ dependency "service_plan" {
   config_path = "../../service_plan"
 }
 
-dependency "resource_group" {
-  config_path = "../../resource_group"
-}
-
 dependency "api" {
   config_path  = "../api"
   skip_outputs = false
@@ -30,7 +26,7 @@ dependency "api" {
 inputs = {
   environment         = local.env_vars.environment_name
   location            = local.env_vars.location
-  resource_group_name = dependency.resource_group.outputs.resource_group_name
+  resource_group_name = local.env_vars.resource_group_name
   service_plan_id     = dependency.service_plan.outputs.service_plan_id
   tags                = local.env_vars.default_tags
 

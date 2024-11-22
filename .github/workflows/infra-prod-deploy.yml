@@ -1,0 +1,26 @@
+# .github/workflows/infra-prod-deploy.yml
+name: Deploy Infrastructure to PROD
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - infrastructure/**
+
+  workflow_dispatch:
+
+jobs:
+  deploy_prod_infra:
+    uses: ./.github/workflows/deploy-infra.yml
+    with:
+      environment: prod
+      working_directory: infrastructure/envs/prod
+    secrets:
+      AZURE_CREDENTIALS: ${{ secrets.AZURE_CREDENTIALS }}
+      ARM_CLIENT_ID: ${{ secrets.ARM_CLIENT_ID }}
+      ARM_CLIENT_SECRET: ${{ secrets.ARM_CLIENT_SECRET }}
+      ARM_SUBSCRIPTION_ID: ${{ secrets.ARM_SUBSCRIPTION_ID }}
+      ARM_TENANT_ID: ${{ secrets.ARM_TENANT_ID }}
+      SQL_ADMIN_PASSWORD: ${{ secrets.SQL_ADMIN_PASSWORD }}
+      SQL_ADMIN_USERNAME: ${{ secrets.SQL_ADMIN_USERNAME }}
