@@ -4,51 +4,50 @@ using MediatR;
 using Microsoft.Extensions.Logging;
 using NUlid;
 
-namespace TheFullStackTeam.Application.Admin.Commands
-{
-    public class DeleteUserCommand : IRequest<AccountModel>
-    {
-        public string UserId { get; set; }
+namespace TheFullStackTeam.Application.Admin.Commands;
 
-        public DeleteUserCommand(string userId)
-        {
-            UserId = userId;
-        }
+public class DeleteUserCommand : IRequest<AccountModel>
+{
+    public string UserId { get; set; }
+
+    public DeleteUserCommand(string userId)
+    {
+        UserId = userId;
+    }
+}
+
+public class DeleteUserCommandHandler : IRequestHandler<DeleteUserCommand, AccountModel> // Cambié el retorno a AccountModel
+{
+    private readonly IAccountCommandRepository _accountRepository;
+    private readonly ILogger<DeleteUserCommandHandler> _logger;
+
+    public DeleteUserCommandHandler(IAccountCommandRepository accountRepository, ILogger<DeleteUserCommandHandler> logger)
+    {
+        _accountRepository = accountRepository;
+        _logger = logger;
     }
 
-    public class DeleteUserCommandHandler : IRequestHandler<DeleteUserCommand, AccountModel> // Cambié el retorno a AccountModel
+    public async Task<AccountModel> Handle(DeleteUserCommand request, CancellationToken cancellationToken)
     {
-        private readonly IAccountCommandRepository _accountRepository;
-        private readonly ILogger<DeleteUserCommandHandler> _logger;
+        _logger.LogInformation($"Deleting user with id: {request.UserId}");
 
-        public DeleteUserCommandHandler(IAccountCommandRepository accountRepository, ILogger<DeleteUserCommandHandler> logger)
+        try
         {
-            _accountRepository = accountRepository;
-            _logger = logger;
+            var user = await _accountRepository.GetByIdAsync(Ulid.Parse(request.UserId));
+            if (user == null)
+            {
+                throw new Exception($"Account with id {request.UserId} not found");
+            }
+
+            await _accountRepository.DeleteAsync(user);
+
+            // TODO: Add event to notify that the user has been deleted
+            return AccountModel.FromEntity(user);
         }
-
-        public async Task<AccountModel> Handle(DeleteUserCommand request, CancellationToken cancellationToken)
+        catch (Exception ex)
         {
-            _logger.LogInformation($"Deleting user with id: {request.UserId}");
-
-            try
-            {
-                var user = await _accountRepository.GetByIdAsync(Ulid.Parse(request.UserId));
-                if (user == null)
-                {
-                    throw new Exception($"Account with id {request.UserId} not found");
-                }
-
-                await _accountRepository.DeleteAsync(user);
-
-                // TODO: Add event to notify that the user has been deleted
-                return AccountModel.FromEntity(user);
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, $"Error deleting user with id {request.UserId}");
-                throw new Exception($"Error deleting user: {ex.Message}");
-            }
+            _logger.LogError(ex, $"Error deleting user with id {request.UserId}");
+            throw new Exception($"Error deleting user: {ex.Message}");
         }
     }
 }

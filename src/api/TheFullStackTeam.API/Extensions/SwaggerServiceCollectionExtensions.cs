@@ -1,7 +1,7 @@
 using Microsoft.Extensions.Options;
 using Microsoft.OpenApi.Models;
 
-namespace TheFullStackTeam.Api.Extensions;
+namespace TheFullStackTeam.API.Extensions;
 
 public static class SwaggerServiceCollectionExtensions
 {

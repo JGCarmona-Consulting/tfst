@@ -1,9 +1,8 @@
 ﻿using TheFullStackTeam.Domain.Events;
 
-namespace TheFullStackTeam.Domain.Services
+namespace TheFullStackTeam.Domain.Services;
+
+public interface IEventDispatcher
 {
-    public interface IEventDispatcher
-    {
-        Task DispatchAsync<TEvent>(TEvent domainEvent) where TEvent : EventBase;
-    }
+    Task DispatchAsync<TEvent>(TEvent domainEvent) where TEvent : EventBase;
 }

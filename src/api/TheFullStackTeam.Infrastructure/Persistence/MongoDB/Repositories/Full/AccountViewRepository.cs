@@ -1,20 +1,22 @@
-﻿using TheFullStackTeam.Domain.Repositories.Full;
+﻿using Microsoft.Extensions.Logging;
+using MongoDB.Driver;
+using TheFullStackTeam.Domain.Repositories.Full;
 using TheFullStackTeam.Domain.Views;
 using TheFullStackTeam.Infrastructure.Repositories.MongoDB.Repositories;
-using MongoDB.Driver;
 
-namespace TheFullStackTeam.Infrastructure.Persistence.MongoDB.Repositories.Full
+namespace TheFullStackTeam.Infrastructure.Persistence.MongoDB.Repositories.Full;
+
+public class AccountViewRepository : MongoRepository<AccountView>, IAccountViewRepository
 {
-    public class AccountViewRepository : MongoRepository<AccountView>, IAccountViewRepository
+    public AccountViewRepository(MongoDbWrapper mongoDbWrapper, ILogger<MongoRepository<AccountView>> logger)
+        : base(mongoDbWrapper, "Accounts", logger)
     {
-        public AccountViewRepository(IMongoDatabase database) : base(database, "Accounts")
-        {
-        }
+    }
 
-        public async Task<AccountView?> GetByNameAsync(string name)
-        {
-            var filter = Builders<AccountView>.Filter.Eq(u => u.LoginName, name);
-            return await _collection.Find(filter).FirstOrDefaultAsync();
-        }
+    public async Task<AccountView?> GetByNameAsync(string name)
+    {
+        if (_collection == null) return null;
+        var filter = Builders<AccountView>.Filter.Eq(u => u.LoginName, name);
+        return await _collection.Find(filter).FirstOrDefaultAsync();
     }
 }

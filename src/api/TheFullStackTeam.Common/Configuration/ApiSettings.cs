@@ -1,7 +1,6 @@
-﻿namespace TheFullStackTeam.Common.Configuration
+﻿namespace TheFullStackTeam.Common.Configuration;
+
+public class ApiSettings
 {
-    public class ApiSettings
-    {
-        public string BaseUrl { get; set; }
-    }
+    public string? BaseUrl { get; set; }
 }

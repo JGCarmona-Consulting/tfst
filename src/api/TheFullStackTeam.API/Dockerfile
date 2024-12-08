@@ -9,21 +9,21 @@ EXPOSE 7101
 FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
 ARG BUILD_CONFIGURATION=Release
 WORKDIR /src
-COPY ["TheFullStackTeam.API/TheFullStackTeam.Api.csproj", "TheFullStackTeam.API/"]
+COPY ["TheFullStackTeam.API/TheFullStackTeam.API.csproj", "TheFullStackTeam.API/"]
 COPY ["TheFullStackTeam.Application/TheFullStackTeam.Application.csproj", "TheFullStackTeam.Application/"]
 COPY ["TheFullStackTeam.Common/TheFullStackTeam.Common.csproj", "TheFullStackTeam.Common/"]
 COPY ["TheFullStackTeam.Domain/TheFullStackTeam.Domain.csproj", "TheFullStackTeam.Domain/"]
 COPY ["TheFullStackTeam.Infrastructure/TheFullStackTeam.Infrastructure.csproj", "TheFullStackTeam.Infrastructure/"]
-RUN dotnet restore "./TheFullStackTeam.API/TheFullStackTeam.Api.csproj"
+RUN dotnet restore "./TheFullStackTeam.API/TheFullStackTeam.API.csproj"
 COPY . .
 WORKDIR "/src/TheFullStackTeam.API"
-RUN dotnet build "./TheFullStackTeam.Api.csproj" -c $BUILD_CONFIGURATION -o /app/build
+RUN dotnet build "./TheFullStackTeam.API.csproj" -c $BUILD_CONFIGURATION -o /app/build
 
 FROM build AS publish
 ARG BUILD_CONFIGURATION=Release
-RUN dotnet publish "./TheFullStackTeam.Api.csproj" -c $BUILD_CONFIGURATION -o /app/publish /p:UseAppHost=false
+RUN dotnet publish "./TheFullStackTeam.API.csproj" -c $BUILD_CONFIGURATION -o /app/publish /p:UseAppHost=false
 
 FROM base AS final
 WORKDIR /app
 COPY --from=publish /app/publish .
-ENTRYPOINT ["dotnet", "TheFullStackTeam.Api.dll"]
+ENTRYPOINT ["dotnet", "TheFullStackTeam.API.dll"]

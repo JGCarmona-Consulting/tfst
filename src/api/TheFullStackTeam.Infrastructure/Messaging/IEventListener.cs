@@ -1,9 +1,8 @@
 ﻿using TheFullStackTeam.Domain.Events;
 
-namespace TheFullStackTeam.Infrastructure.Messaging
+namespace TheFullStackTeam.Infrastructure.Messaging;
+
+public interface IEventListener
 {
-    public interface IEventListener
-    {
-        Task StartListeningAsync(Func<EventBase, Task> onEventReceived, CancellationToken cancellationToken);
-    }
+    Task StartListeningAsync(Func<EventBase, Task> onEventReceived, CancellationToken cancellationToken);
 }

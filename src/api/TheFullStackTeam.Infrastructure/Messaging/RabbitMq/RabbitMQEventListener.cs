@@ -69,12 +69,12 @@ public class RabbitMQEventListener : IEventListener
                     var eventType = messagePayload.GetProperty("EventType").GetString();
                     var eventData = messagePayload.GetProperty("EventData").GetRawText();
 
-                    var type = Type.GetType(eventType);
+                    var type = Type.GetType(eventType!);
                     var options = new JsonSerializerOptions
                     {
                         Converters = { new UlidJsonConverter() }
                     };
-                    var domainEvent = (EventBase)JsonSerializer.Deserialize(eventData, type, options);
+                    var domainEvent = (EventBase)JsonSerializer.Deserialize(eventData, type!, options)!;
 
                     if (domainEvent != null)
                     {
