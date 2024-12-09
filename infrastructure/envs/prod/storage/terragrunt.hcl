@@ -11,13 +11,9 @@ include {
   path = find_in_parent_folders()
 }
 
-dependency "resource_group" {
-  config_path = "../resource_group"
-}
-
 inputs = {
   storage_account_name = "tfstpublicstorage${local.env_vars.environment_name}"
-  resource_group_name  = dependency.resource_group.outputs.resource_group_name
+  resource_group_name  = local.env_vars.resource_group_name
   location             = local.env_vars.location
   tags                 = local.env_vars.default_tags
 }

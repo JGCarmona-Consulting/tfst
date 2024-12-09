@@ -1,0 +1,21 @@
+# .github/workflows/webapp-dev-deploy.yml
+name: Deploy Angular WebApp to DEV
+
+on:
+  push:
+    branches:
+      - dev
+    paths:
+      - src/webapp/**
+
+  workflow_dispatch:
+
+jobs:
+  deploy_dev_webapp:
+    uses: ./.github/workflows/deploy-angular.yml
+    with:
+      environment: dev
+      working_directory: src/webapp/TFST-Front
+      app_service_name: tfst-webapp-dev
+    secrets:
+      AZURE_CREDENTIALS: ${{ secrets.AZURE_CREDENTIALS }}

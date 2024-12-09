@@ -1,0 +1,21 @@
+# .github/workflows/webapp-prod-deploy.yml
+name: Deploy Angular WebApp to PROD
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - src/webapp/**
+
+  workflow_dispatch:
+
+jobs:
+  deploy_prod_webapp:
+    uses: ./.github/workflows/deploy-angular.yml
+    with:
+      environment: dev
+      working_directory: src/webapp/TFST-Front
+      app_service_name: tfst-webapp-prod
+    secrets:
+      AZURE_CREDENTIALS: ${{ secrets.AZURE_CREDENTIALS }}

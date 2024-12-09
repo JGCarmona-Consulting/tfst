@@ -1,35 +1,34 @@
 ﻿using TheFullStackTeam.Domain.Entities;
 using TheFullStackTeam.Domain.Views;
 
-namespace TheFullStackTeam.Application.Accounts.Models
+namespace TheFullStackTeam.Application.Accounts.Models;
+
+public class AccountModel
 {
-    public class AccountModel
+    public string? Id { get; set; }
+    public string Email { get; set; } = string.Empty;
+    public List<string> Roles { get; set; } = new List<string>();
+    public bool IsActive { get; set; }
+
+    public static AccountModel FromEntity(Account account)
     {
-        public string Id { get; set; }
-        public string Email { get; set; } = string.Empty;
-        public List<string> Roles { get; set; } = new List<string>();
-        public bool IsActive { get; set; }
-
-        public static AccountModel FromEntity(Account account)
+        return new AccountModel
         {
-            return new AccountModel
-            {
-                Id = account.Id.ToString(),
-                Email = account.Email,
-                Roles = account.Roles,
-                IsActive = account.IsActive
-            };
-        }
+            Id = account.Id.ToString(),
+            Email = account.Email,
+            Roles = account.Roles,
+            IsActive = account.IsActive
+        };
+    }
 
-        public static AccountModel FromView(AccountView view)
+    public static AccountModel FromView(AccountView view)
+    {
+        return new AccountModel
         {
-            return new AccountModel
-            {
-                Id = view.EntityId.ToString(),
-                Email = view.Email,
-                Roles = view.Roles,
-                IsActive = view.IsActive
-            };
-        }
+            Id = view.EntityId.ToString(),
+            Email = view.Email,
+            Roles = view.Roles,
+            IsActive = view.IsActive
+        };
     }
 }

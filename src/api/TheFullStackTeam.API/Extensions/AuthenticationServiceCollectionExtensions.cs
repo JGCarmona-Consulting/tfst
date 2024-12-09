@@ -3,7 +3,7 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
 
-namespace TheFullStackTeam.Api.Extensions;
+namespace TheFullStackTeam.API.Extensions;
 
 public static class AuthenticationServiceCollectionExtensions
 {

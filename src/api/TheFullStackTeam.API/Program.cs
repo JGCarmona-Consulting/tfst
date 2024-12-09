@@ -1,5 +1,11 @@
-
 using DotNetEnv;
+using HealthChecks.UI.Client;
+using Microsoft.AspNetCore.Diagnostics.HealthChecks;
+using Serilog;
+using System.Text.Json;
+using TheFullStackTeam.API.Extensions;
+using TheFullStackTeam.API.Middlewares;
+using TheFullStackTeam.API.HealthChecks;
 using TheFullStackTeam.Common.Configuration;
 using TheFullStackTeam.Common.Converters;
 using TheFullStackTeam.Domain.Services;
@@ -9,96 +15,109 @@ using TheFullStackTeam.Infrastructure.Persistence.Sql.Extensions;
 using TheFullStackTeam.Infrastructure.Persistence.Sql.Initialization;
 using TheFullStackTeam.Infrastructure.Persistence.Sql.Services;
 using TheFullStackTeam.Infrastructure.Services;
-using Serilog;
-using System.Text.Json;
-using TheFullStackTeam.Api.Extensions;
-using TheFullStackTeam.Api.Middlewares;
+using TheFullStackTeam.Common.Constants;
 
-namespace TheFullStackTeam.Api
+namespace TheFullStackTeam.API;
+
+public class Program
 {
-
-    public class Program
+    private static async Task Main(string[] args)
     {
-        private static async Task Main(string[] args)
+        // Load environment variables from .env file
+        Env.Load();
+
+        var builder = WebApplication.CreateBuilder(args);
+
+        // Add secrets provider extension here before other services
+        builder.Services.AddCustomSecrets(builder.Configuration);
+
+        builder.Configuration
+            .SetBasePath(Directory.GetCurrentDirectory())
+            .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
+            .AddJsonFile($"appsettings.{builder.Environment.EnvironmentName}.json", optional: true)
+            .AddEnvironmentVariables();
+
+        // Configure feature flags and specific settings
+        builder.Services.Configure<AdminSettings>(builder.Configuration.GetSection("AdminSettings"));
+        builder.Services.Configure<FeatureFlags>(builder.Configuration.GetSection("FeatureFlags"));
+        builder.Services.Configure<RabbitMQSettings>(builder.Configuration.GetSection("RabbitMQSettings"));
+        builder.Services.Configure<MongoDbSettings>(builder.Configuration.GetSection("MongoDbSettings"));
+        builder.Services.Configure<JwtSettings>(builder.Configuration.GetSection("JwtSettings"));
+
+
+        builder.Host.UseSerilog((context, loggerConfig) =>
+            loggerConfig.ReadFrom.Configuration(context.Configuration));
+
+        builder.Services.AddRouting(options => options.LowercaseUrls = true);
+
+        // Configure services
+        builder.Services.AddDatabaseConfiguration(builder.Configuration);
+        builder.Services.AddMongoDb();
+        builder.Services.AddCommandRepositories();
+        builder.Services.AddQueryRepositories();
+        builder.Services.AddMediatRConfiguration();
+        builder.Services.AddSwaggerConfiguration();
+        builder.Services.AddJwtAuthentication(builder.Configuration);
+        builder.Services.AddEventDispatcher(builder.Configuration);
+
+        builder.Services.AddScoped<IPasswordHasher, PasswordHasher>();
+        builder.Services.AddScoped<IMonikerService, MonikerService>();
+        builder.Services.AddScoped<DatabaseInitializer>();
+        builder.Services.AddSingleton(new JsonSerializerOptions
         {
-            // Load environment variables from .env file
-            Env.Load();
+            Converters = { new UlidJsonConverter() }
+        });
 
-            var builder = WebApplication.CreateBuilder(args);
+        builder.Services.AddAuthorization();
+        builder.Services.AddControllers();
+        // Congiguring Health Ckeck
+        builder.Services.AddCustomHealthChecks(builder.Configuration);
 
-            // Add secrets provider extension here before other services
-            builder.Services.AddCustomSecrets(builder.Configuration);
+        var app = builder.Build();
 
-            builder.Configuration
-                .SetBasePath(Directory.GetCurrentDirectory())
-                .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
-                .AddJsonFile($"appsettings.{builder.Environment.EnvironmentName}.json", optional: true)
-                .AddEnvironmentVariables();
+        // Add Middlewares
+        app.UseMiddleware<RequestContextLoggingMiddleware>();
+        app.UseMiddleware<GlobalExceptionHandlerMiddleware>();        
 
-            // Configure feature flags and specific settings
-            builder.Services.Configure<AdminSettings>(builder.Configuration.GetSection("AdminSettings"));
-            builder.Services.Configure<FeatureFlags>(builder.Configuration.GetSection("FeatureFlags"));
-            builder.Services.Configure<RabbitMQSettings>(builder.Configuration.GetSection("RabbitMQSettings"));
-            builder.Services.Configure<MongoDbSettings>(builder.Configuration.GetSection("MongoDbSettings"));
-            builder.Services.Configure<JwtSettings>(builder.Configuration.GetSection("JwtSettings"));
+        await app.Services.InitializeDatabaseAsync(builder.Configuration);
 
+        //if (app.Environment.IsDevelopment())
+        //{
+        app.UseSwagger();
+        app.UseSwaggerUI(c =>
+        {
+            c.SwaggerEndpoint("/swagger/v1/swagger.json", "TheFullStackTeam API v1");
+            c.RoutePrefix = "swagger";
+            c.OAuthUsePkce();
+        });
+        //}
 
-            builder.Host.UseSerilog((context, loggerConfig) =>
-                loggerConfig.ReadFrom.Configuration(context.Configuration));
+        //app.MapGet("/", context =>
+        //{
+        //    context.Response.Redirect("/swagger");
+        //    return Task.CompletedTask;
+        //});
 
-            builder.Services.AddRouting(options => options.LowercaseUrls = true);
+        app.UseHttpsRedirection();
+        app.UseRouting();
+        app.UseAuthentication();
+        app.UseAuthorization();
+        app.MapControllers();
 
-            // Configure services
-            builder.Services.AddDatabaseConfiguration(builder.Configuration);
-            builder.Services.AddMongoDb(builder.Configuration);
-            builder.Services.AddCommandRepositories();
-            builder.Services.AddQueryRepositories();
-            builder.Services.AddMediatRConfiguration();
-            builder.Services.AddSwaggerConfiguration();
-            builder.Services.AddJwtAuthentication(builder.Configuration);
-            builder.Services.AddEventDispatcher(builder.Configuration);
+        // HealthCheck Middleware
+        //liveness  endpoint
+        app.MapHealthChecks("/api/health/liveness", new HealthCheckOptions()
+        {
+            Predicate = (check) => check.Tags.Contains(HealthCheckTags.Liveness),
+            ResponseWriter = UIResponseWriter.WriteHealthCheckUIResponse
+        });
+        //readiness  endpoint
+        app.MapHealthChecks("/api/health/readiness", new HealthCheckOptions()
+        {
+            Predicate = (check) => check.Tags.Contains(HealthCheckTags.Readiness),
+            ResponseWriter = UIResponseWriter.WriteHealthCheckUIResponse
+        });
 
-            builder.Services.AddScoped<IPasswordHasher, PasswordHasher>();
-            builder.Services.AddScoped<IMonikerService, MonikerService>();
-            builder.Services.AddScoped<DatabaseInitializer>();
-            builder.Services.AddSingleton(new JsonSerializerOptions
-            {
-                Converters = { new UlidJsonConverter() }
-            });
-
-            builder.Services.AddAuthorization();
-            builder.Services.AddControllers();
-
-            var app = builder.Build();
-
-            // Add Middlewares
-            app.UseMiddleware<RequestContextLoggingMiddleware>();
-            app.UseMiddleware<GlobalExceptionHandlerMiddleware>();
-
-            await app.Services.InitializeDatabaseAsync(builder.Configuration);
-
-            //if (app.Environment.IsDevelopment())
-            //{
-            app.UseSwagger();
-            app.UseSwaggerUI(c =>
-            {
-                c.SwaggerEndpoint("/swagger/v1/swagger.json", "TheFullStackTeam API v1");
-                c.RoutePrefix = string.Empty;
-                c.OAuthUsePkce();
-            });
-            //}
-
-            //app.MapGet("/", context =>
-            //{
-            //    context.Response.Redirect("/swagger");
-            //    return Task.CompletedTask;
-            //});
-
-            app.UseHttpsRedirection();
-            app.UseAuthentication();
-            app.UseAuthorization();
-            app.MapControllers();
-            app.Run();
-        }
+        app.Run();
     }
 }

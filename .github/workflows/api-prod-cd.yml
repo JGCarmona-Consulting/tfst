@@ -1,0 +1,23 @@
+# .github/workflows/api-prod-cd.yml
+name: Deploy API to PROD
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'src/api/**'
+
+  workflow_dispatch:
+
+jobs:
+  deploy_api:
+    uses: ./.github/workflows/deploy-api.yml
+    with:
+      environment: prod
+      branch: main
+      working_directory: src/api
+      solution_name: TheFullStackTeam.Backend.sln
+      app_service_name: tfst-api-prod
+    secrets:
+      AZURE_CREDENTIALS: ${{ secrets.AZURE_CREDENTIALS }}

@@ -1,8 +1,8 @@
 ﻿using TheFullStackTeam.Application.Auth.Commands;
 using MediatR;
-using TheFullStackTeam.Api.Behaviors;
+using TheFullStackTeam.API.Behaviors;
 
-namespace TheFullStackTeam.Api.Extensions;
+namespace TheFullStackTeam.API.Extensions;
 
 public static class MediatRServiceCollectionExtensions
 {

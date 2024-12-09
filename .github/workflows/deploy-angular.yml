@@ -1,0 +1,64 @@
+# .github/workflows/deploy-angular.yml
+name: Deploy Angular Application
+
+on:
+  workflow_call:
+    inputs:
+      environment:
+        required: true
+        type: string
+        description: "Environment to deploy the Angular application"
+      working_directory:
+        required: true
+        type: string
+        description: "Path to the Angular project directory"
+      app_service_name:
+        required: true
+        type: string
+        description: "Azure App Service name for deployment"
+    secrets:
+      AZURE_CREDENTIALS:
+        required: true
+
+jobs:
+  build_and_deploy:
+    name: Build and Deploy Angular Application
+    runs-on: ubuntu-latest
+    environment: ${{ inputs.environment }}
+
+    steps:
+      # Checkout the code
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      # Set up Node.js environment
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: 18
+
+      - name: Login to Azure
+        uses: azure/login@v1
+        with:
+            creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+      # Install Angular CLI globally
+      - name: Install Angular CLI
+        run: npm install -g @angular/cli
+
+      # Install dependencies
+      - name: Install dependencies
+        run: npm install
+        working-directory: ${{ inputs.working_directory }}
+
+      # Run Angular build
+      - name: Build Angular application
+        run: ng build --configuration production
+        working-directory: ${{ inputs.working_directory }}
+
+      # Deploy to Azure App Service
+      - name: Deploy to Azure App Service
+        uses: azure/webapps-deploy@v2
+        with:
+          app-name: ${{ inputs.app_service_name }}
+          package: ${{ inputs.working_directory }}/dist

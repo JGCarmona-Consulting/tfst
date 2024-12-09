@@ -3,38 +3,36 @@ using TheFullStackTeam.Domain.Repositories.Query;
 using MediatR;
 using NUlid;
 
-namespace TheFullStackTeam.Application.UserProfiles.Queries
+namespace TheFullStackTeam.Application.UserProfiles.Queries;
+
+public class GetUserProfileByIdQuery : IRequest<UserProfileModel>
 {
-    public class GetUserProfileByIdQuery : IRequest<UserProfileModel>
-    {
-        public Ulid UserProfileId { get; }
+    public Ulid UserProfileId { get; }
 
-        public GetUserProfileByIdQuery(Ulid userProfileId)
-        {
-            UserProfileId = userProfileId;
-        }
+    public GetUserProfileByIdQuery(Ulid userProfileId)
+    {
+        UserProfileId = userProfileId;
+    }
+}
+
+public class GetUserProfileByIdQueryHandler : IRequestHandler<GetUserProfileByIdQuery, UserProfileModel>
+{
+    private readonly IUserProfileViewQueryRepository _userProfileRepository;
+
+    public GetUserProfileByIdQueryHandler(IUserProfileViewQueryRepository userProfileRepository)
+    {
+        _userProfileRepository = userProfileRepository;
     }
 
-    public class GetUserProfileByIdQueryHandler : IRequestHandler<GetUserProfileByIdQuery, UserProfileModel>
+    public async Task<UserProfileModel> Handle(GetUserProfileByIdQuery request, CancellationToken cancellationToken)
     {
-        private readonly IUserProfileViewQueryRepository _userProfileRepository;
+        var profile = await _userProfileRepository.GetByIdAsync(request.UserProfileId);
 
-        public GetUserProfileByIdQueryHandler(IUserProfileViewQueryRepository userProfileRepository)
+        if (profile == null)
         {
-            _userProfileRepository = userProfileRepository;
+            throw new Exception($"Profile with ID {request.UserProfileId} not found");
         }
 
-        public async Task<UserProfileModel> Handle(GetUserProfileByIdQuery request, CancellationToken cancellationToken)
-        {
-            var profile = await _userProfileRepository.GetByIdAsync(request.UserProfileId);
-
-            if (profile == null)
-            {
-                throw new Exception($"Profile with ID {request.UserProfileId} not found");
-            }
-
-            return UserProfileModel.FromView(profile);
-        }
+        return UserProfileModel.FromView(profile);
     }
-
 }

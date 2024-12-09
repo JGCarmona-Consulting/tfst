@@ -1,9 +1,8 @@
 using TheFullStackTeam.Domain.Entities;
 
-namespace TheFullStackTeam.Domain.Services
+namespace TheFullStackTeam.Domain.Services;
+
+public interface IMonikerService
 {
-    public interface IMonikerService
-    {
-        Task<string> GenerateMonikerAsync<T>(string baseText) where T : IdentifiableEntity;
-    }
+    Task<string> GenerateMonikerAsync<T>(string baseText) where T : IdentifiableEntity;
 }

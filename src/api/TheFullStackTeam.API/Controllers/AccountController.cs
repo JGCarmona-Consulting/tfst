@@ -1,58 +1,57 @@
-using TheFullStackTeam.Api.Extensions;
-using TheFullStackTeam.Application.Accounts.Commands.SignUp;
-using TheFullStackTeam.Application.Accounts.Models;
-using TheFullStackTeam.Application.Accounts.Queries;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using TheFullStackTeam.API.Extensions;
+using TheFullStackTeam.Application.Accounts.Commands.SignUp;
+using TheFullStackTeam.Application.Accounts.Models;
+using TheFullStackTeam.Application.Accounts.Queries;
 
-namespace TheFullStackTeam.Api.Controllers
+namespace TheFullStackTeam.API.Controllers;
+
+[Route("api/[controller]")]
+[ApiController]
+public class AccountController : ControllerBase
 {
-    [Route("api/[controller]")]
-    [ApiController]
-    public class AccountController : ControllerBase
+    private readonly IMediator _mediator;
+
+    public AccountController(IMediator mediator)
     {
-        private readonly IMediator _mediator;
+        _mediator = mediator;
+    }
 
-        public AccountController(IMediator mediator)
+    [AllowAnonymous]
+    [HttpPost("signup")]
+    public async Task<IActionResult> Signup([FromBody] SignupModel model)
+    {
+        var command = new SignupCommand { SignupModel = model };
+
+        var result = await _mediator.Send(command);
+
+        if (result == null)
+            return BadRequest("Failed to create account");
+
+        return Ok(result);
+    }
+
+    [Authorize]
+    [HttpGet("me")]
+    public async Task<IActionResult> Me()
+    {
+        var email = User?.Identity?.Name;
+        var profileId = User?.GetProfileId();
+        if (email == null)
         {
-            _mediator = mediator;
+            return BadRequest("Not authenticated!");
         }
 
-        [AllowAnonymous]
-        [HttpPost("signup")]
-        public async Task<IActionResult> Signup([FromBody] SignupModel model)
+        var query = new GetAccountByEmailQuery(email, profileId!);
+        var account = await _mediator.Send(query);
+
+        if (account == null)
         {
-            var command = new SignupCommand { SignupModel = model };
-
-            var result = await _mediator.Send(command);
-
-            if (result == null)
-                return BadRequest("Failed to create account");
-
-            return Ok(result);
+            return NotFound("User not found");
         }
 
-        [Authorize]
-        [HttpGet("me")]
-        public async Task<IActionResult> Me()
-        {
-            var email = User?.Identity?.Name;
-            var profileId = User.GetProfileId();
-            if (email == null)
-            {
-                return BadRequest("Not authenticated!");
-            }
-
-            var query = new GetAccountByEmailQuery(email, profileId);
-            var account = await _mediator.Send(query);
-
-            if (account == null)
-            {
-                return NotFound("User not found");
-            }
-
-            return Ok(account);
-        }
+        return Ok(account);
     }
 }

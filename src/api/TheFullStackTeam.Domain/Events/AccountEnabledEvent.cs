@@ -1,14 +1,11 @@
-﻿using TheFullStackTeam.Domain.Events;
+﻿namespace TheFullStackTeam.Domain.Events;
 
-namespace TheFullStackTeam.Domain.Events
+public class AccountEnabledEvent : EventBase
 {
-    public class AccountEnabledEvent : EventBase
-    {
-        public string AccountId { get; }
+    public string AccountId { get; }
 
-        public AccountEnabledEvent(string accountId)
-        {
-            AccountId = accountId;
-        }
+    public AccountEnabledEvent(string accountId)
+    {
+        AccountId = accountId;
     }
 }
