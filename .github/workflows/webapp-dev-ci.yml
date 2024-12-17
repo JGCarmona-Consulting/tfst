@@ -1,0 +1,18 @@
+# .github/workflows/webapp-dev-ci.yml
+name: Angular WebApp CI for DEV
+
+on:
+  pull_request:
+    branches:
+      - dev
+    paths:
+      - src/webapp/**
+
+  workflow_dispatch:
+
+jobs:
+  build_dev:
+    uses: ./.github/workflows/build-angular.yml
+    with:
+      branch: dev
+      working_directory: src/webapp/TFST-Front

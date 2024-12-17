@@ -1,12 +1,11 @@
 ﻿using NUlid;
 
-namespace TheFullStackTeam.Domain.Repositories.Command
+namespace TheFullStackTeam.Domain.Repositories.Command;
+
+public interface ICommandRepository<T> where T : class
 {
-    public interface ICommandRepository<T> where T : class
-    {
-        Task<T?> GetByIdAsync(Ulid id);
-        Task AddAsync(T entity);
-        Task UpdateAsync(T entity);
-        Task DeleteAsync(T entity);
-    }
+    Task<T?> GetByIdAsync(Ulid id);
+    Task AddAsync(T entity);
+    Task UpdateAsync(T entity);
+    Task DeleteAsync(T entity);
 }

@@ -1,0 +1,17 @@
+# .github/workflows/api-dev-ci.yml
+name: API DEV CI
+
+on:
+  pull_request:
+    branches:
+      - dev
+    paths:
+      - 'src/api/**'
+  workflow_dispatch:
+
+jobs:
+  build:
+    uses: ./.github/workflows/build-api.yml
+    with:
+      branch: dev
+      working_directory: src/api

@@ -1,0 +1,28 @@
+
+# .github/workflows/infra-dev-deploy.yml
+name: Deploy Infrastructure to DEV
+
+on:
+  push:
+    branches:
+      - dev
+    paths:
+      - infrastructure/**
+
+  workflow_dispatch:
+
+jobs:
+  deploy_dev_infra:
+    uses: ./.github/workflows/deploy-infra.yml
+    with:
+      environment: dev
+      working_directory: infrastructure/envs/dev
+    secrets:
+      AZURE_CREDENTIALS: ${{ secrets.AZURE_CREDENTIALS }}
+      ARM_CLIENT_ID: ${{ secrets.ARM_CLIENT_ID }}
+      ARM_CLIENT_SECRET: ${{ secrets.ARM_CLIENT_SECRET }}
+      ARM_SUBSCRIPTION_ID: ${{ secrets.ARM_SUBSCRIPTION_ID }}
+      ARM_TENANT_ID: ${{ secrets.ARM_TENANT_ID }}
+      SQL_ADMIN_PASSWORD: ${{ secrets.SQL_ADMIN_PASSWORD }}
+      SQL_ADMIN_USERNAME: ${{ secrets.SQL_ADMIN_USERNAME }}
+

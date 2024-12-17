@@ -1,12 +1,11 @@
 ﻿using TheFullStackTeam.Domain.Entities;
 using TheFullStackTeam.Domain.Repositories.Command;
 
-namespace TheFullStackTeam.Infrastructure.Persistence.Sql.Repositories
+namespace TheFullStackTeam.Infrastructure.Persistence.Sql.Repositories;
+
+public class UserProfileCommandRepository : CommandRepository<UserProfile>, ICommandRepository<UserProfile>
 {
-    public class UserProfileCommandRepository : CommandRepository<UserProfile>, ICommandRepository<UserProfile>
+    public UserProfileCommandRepository(ApplicationDbContext context) : base(context)
     {
-        public UserProfileCommandRepository(ApplicationDbContext context) : base(context)
-        {
-        }
     }
 }

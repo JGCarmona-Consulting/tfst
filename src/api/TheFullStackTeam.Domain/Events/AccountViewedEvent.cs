@@ -1,14 +1,13 @@
-﻿namespace TheFullStackTeam.Domain.Events
-{
-    public class AccountViewedEvent : EventBase
-    {
-        public string AccountId { get; }
-        public string ViewedByProfileId { get; }
+﻿namespace TheFullStackTeam.Domain.Events;
 
-        public AccountViewedEvent(string accountId, string viewedByProfileId)
-        {
-            AccountId = accountId;
-            ViewedByProfileId = viewedByProfileId;
-        }
+public class AccountViewedEvent : EventBase
+{
+    public string AccountId { get; }
+    public string ViewedByProfileId { get; }
+
+    public AccountViewedEvent(string accountId, string viewedByProfileId)
+    {
+        AccountId = accountId;
+        ViewedByProfileId = viewedByProfileId;
     }
 }

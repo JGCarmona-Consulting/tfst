@@ -1,0 +1,18 @@
+# .github/workflows/webapp-prod-ci.yml
+name: Angular WebApp CI for PROD
+
+on:
+  pull_request:
+    branches:
+      - main
+    paths:
+      - src/webapp/**
+
+  workflow_dispatch:
+
+jobs:
+  build_prod:
+    uses: ./.github/workflows/build-angular.yml
+    with:
+      branch: main
+      working_directory: src/webapp/TFST-Front

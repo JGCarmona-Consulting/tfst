@@ -1,10 +1,9 @@
-﻿namespace TheFullStackTeam.Common.Configuration
+﻿namespace TheFullStackTeam.Common.Configuration;
+
+public class FeatureFlags
 {
-    public class FeatureFlags
-    {
-        public bool MigrateAtStartup { get; set; } = false;
-        public string MessagingProvider { get; set; } = "RabbitMQ";
-        public string SecretsProvider { get; set; } = "AzureKeyVault";
-        public bool LogUnhandledEvents { get; set; } = false;
-    }
+    public bool MigrateAtStartup { get; set; } = false;
+    public string MessagingProvider { get; set; } = "RabbitMQ";
+    public string SecretsProvider { get; set; } = "AzureKeyVault";
+    public bool LogUnhandledEvents { get; set; } = false;
 }

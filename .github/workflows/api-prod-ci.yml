@@ -1,0 +1,17 @@
+# .github/workflows/api-prod-ci.yml
+name: API PROD CI
+
+on:
+  pull_request:
+    branches:
+      - main
+    paths:
+      - 'src/api/**'
+  workflow_dispatch:
+
+jobs:
+  build:
+    uses: ./.github/workflows/build-api.yml
+    with:
+      branch: main
+      working_directory: src/api

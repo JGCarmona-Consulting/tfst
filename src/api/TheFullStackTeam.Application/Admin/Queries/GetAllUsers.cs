@@ -3,32 +3,31 @@ using TheFullStackTeam.Domain.Repositories.Query;
 using MediatR;
 using Microsoft.Extensions.Logging;
 
-namespace TheFullStackTeam.Application.Admin.Queries
+namespace TheFullStackTeam.Application.Admin.Queries;
+
+public class GetAllUsersQuery : IRequest<List<AccountModel>>
 {
-    public class GetAllUsersQuery : IRequest<List<AccountModel>>
+}
+
+public class GetAllUsersQueryHandler : IRequestHandler<GetAllUsersQuery, List<AccountModel>>
+{
+    private readonly IAccountViewQueryRepository _userQueryRepository;
+    private readonly ILogger<GetAllUsersQueryHandler> _logger;
+
+    public GetAllUsersQueryHandler(IAccountViewQueryRepository userQueryRepository, ILogger<GetAllUsersQueryHandler> logger)
     {
+        _userQueryRepository = userQueryRepository;
+        _logger = logger;
     }
 
-    public class GetAllUsersQueryHandler : IRequestHandler<GetAllUsersQuery, List<AccountModel>>
+    public async Task<List<AccountModel>> Handle(GetAllUsersQuery request, CancellationToken cancellationToken)
     {
-        private readonly IAccountViewQueryRepository _userQueryRepository;
-        private readonly ILogger<GetAllUsersQueryHandler> _logger;
-
-        public GetAllUsersQueryHandler(IAccountViewQueryRepository userQueryRepository, ILogger<GetAllUsersQueryHandler> logger)
+        var users = await _userQueryRepository.GetAllAsync();
+        if (users == null || !users.Any())
         {
-            _userQueryRepository = userQueryRepository;
-            _logger = logger;
+            throw new Exception("No users found");
         }
 
-        public async Task<List<AccountModel>> Handle(GetAllUsersQuery request, CancellationToken cancellationToken)
-        {
-            var users = await _userQueryRepository.GetAllAsync();
-            if (users == null || !users.Any())
-            {
-                throw new Exception("No users found");
-            }
-
-            return users.Select(u => AccountModel.FromView(u)).ToList();
-        }
+        return users.Select(u => AccountModel.FromView(u)).ToList();
     }
 }

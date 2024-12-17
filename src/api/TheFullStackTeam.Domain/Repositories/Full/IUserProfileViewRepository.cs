@@ -1,8 +1,7 @@
 ﻿using TheFullStackTeam.Domain.Views;
 
-namespace TheFullStackTeam.Domain.Repositories.Full
+namespace TheFullStackTeam.Domain.Repositories.Full;
+
+public interface IUserProfileViewRepository : IRepository<UserProfileView>
 {
-    public interface IUserProfileViewRepository : IRepository<UserProfileView>
-    {
-    }
 }

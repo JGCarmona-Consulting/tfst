@@ -1,0 +1,54 @@
+# .github/workflows/build-angular.yml
+name: Build Angular Application
+
+on:
+  workflow_call:
+    inputs:
+      branch:
+        required: true
+        type: string
+        description: "Branch to build"
+      working_directory:
+        required: true
+        type: string
+        description: "Path to the Angular project directory"
+
+jobs:
+  angular_ci:
+    name: Angular CI
+    runs-on: ubuntu-latest
+
+    steps:
+      # Checkout the code
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      # Set up Node.js environment
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: 18
+
+      # Install Angular CLI globally
+      - name: Install Angular CLI
+        run: npm install -g @angular/cli
+
+      # Install dependencies
+      - name: Install dependencies
+        run: npm install
+        working-directory: ${{ inputs.working_directory }}
+
+      # Run Angular build
+      - name: Build Angular application
+        run: ng build --configuration production
+        working-directory: ${{ inputs.working_directory }}
+
+# #   # Run Angular tests (if applicable)
+# #   - name: Run Angular tests
+# #     run: ng test --watch=false --browsers=ChromeHeadless
+# #     working-directory: ${{ inputs.working_directory }}
+
+    # WARNING for missing tests
+      - name: ⚠️ Warning - Tests are disabled!
+        run: |
+          echo "::warning::Angular tests are currently disabled. Please fix the tests as soon as possible!"

@@ -4,9 +4,10 @@ services:
   thefullstackteam.api:
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
-      - ASPNETCORE_HTTP_PORTS=7100
-      - ASPNETCORE_HTTPS_PORTS=7101
+      - ASPNETCORE_HTTP_PORT=7100
+      - ASPNETCORE_HTTPS_PORT=7101
+      - ASPNETCORE_URLS=https://+:7101
 
-    volumes:
-      - ${APPDATA}/Microsoft/UserSecrets:/home/app/.microsoft/usersecrets:ro
-      - ${APPDATA}/ASP.NET/Https:/home/app/.aspnet/https:ro
+    #volumes:        
+      #- ${APPDATA}/Microsoft/UserSecrets:/home/app/.microsoft/usersecrets:ro
+      #- ${APPDATA}/ASP.NET/Https:/home/app/.aspnet/https:ro

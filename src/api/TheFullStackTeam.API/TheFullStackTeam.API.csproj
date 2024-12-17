@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk.Web">
+﻿<Project Sdk="Microsoft.NET.Sdk.Web">
 
   <PropertyGroup>
     <TargetFramework>net8.0</TargetFramework>
@@ -10,8 +10,13 @@
   </PropertyGroup>
 
   <ItemGroup>
+	  <PackageReference Include="AspNetCore.HealthChecks.MongoDb" Version="8.1.0" />
+	  <PackageReference Include="AspNetCore.HealthChecks.Rabbitmq" Version="8.0.2" />
+	  <PackageReference Include="AspNetCore.HealthChecks.SqlServer" Version="8.0.2" />
+	  <PackageReference Include="AspNetCore.HealthChecks.UI.Client" Version="8.0.1" />
 	  <PackageReference Include="MediatR" Version="12.4.1" />
 	  <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="8.0.10" />
+	  <PackageReference Include="Microsoft.AspNetCore.Http.Abstractions" Version="2.1.1" />
 	  <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="8.0.10" />
 	  <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="8.0.10">
 		  <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
@@ -24,9 +29,10 @@
 	  <PackageReference Include="Serilog.Sinks.Console" Version="6.0.0" />
 	  <PackageReference Include="Serilog.Sinks.File" Version="6.0.0" />
 	  <PackageReference Include="Serilog.Sinks.Seq" Version="8.0.0" />
-	  <PackageReference Include="Swashbuckle" Version="5.6.0" />
-	  <PackageReference Include="Swashbuckle.AspNetCore.SwaggerGen" Version="6.9.0" />
-	  <PackageReference Include="Swashbuckle.AspNetCore.SwaggerUI" Version="6.9.0" />
+    <PackageReference Include="Swashbuckle.AspNetCore" Version="7.1.0" />
+	  <PackageReference Include="Swashbuckle.AspNetCore.SwaggerGen" Version="7.1.0" />
+	  <PackageReference Include="Swashbuckle.AspNetCore.SwaggerUI" Version="7.1.0" />
+	  <PackageReference Include="System.Text.Encodings.Web" Version="8.0.0" />
   </ItemGroup>
 
   <ItemGroup>
@@ -36,6 +42,7 @@
 
   <ItemGroup>
     <Folder Include="Features\" />
+    <Folder Include="logs\" />
   </ItemGroup>
 
 </Project>

@@ -1,34 +1,32 @@
 using Microsoft.Extensions.Primitives;
 using Serilog.Context;
 
-namespace TheFullStackTeam.Api.Middlewares
+namespace TheFullStackTeam.API.Middlewares;
+public class RequestContextLoggingMiddleware
 {
-    public class RequestContextLoggingMiddleware
+    private const string CorrelationIdHeaderName = "X-Correlation-Id";
+    private readonly RequestDelegate _next;
+
+    public RequestContextLoggingMiddleware(RequestDelegate next)
     {
-        private const string CorrelationIdHeaderName = "X-Correlation-Id";
-        private readonly RequestDelegate _next;
+        _next = next;
+    }
 
-        public RequestContextLoggingMiddleware(RequestDelegate next)
+    public async Task Invoke(HttpContext context)
+    {
+        string correlationId = GetCorrelationId(context);
+        context.Items["CorrelationId"] = correlationId;
+
+        using (LogContext.PushProperty("CorrelationId", correlationId))
         {
-            _next = next;
+            await _next.Invoke(context);
         }
+    }
 
-        public async Task Invoke(HttpContext context)
-        {
-            string correlationId = GetCorrelationId(context);
-            context.Items["CorrelationId"] = correlationId;
+    private static string GetCorrelationId(HttpContext context)
+    {
+        context.Request.Headers.TryGetValue(CorrelationIdHeaderName, out StringValues correlationId);
 
-            using (LogContext.PushProperty("CorrelationId", correlationId))
-            {
-                await _next.Invoke(context);
-            }
-        }
-
-        private static string GetCorrelationId(HttpContext context)
-        {
-            context.Request.Headers.TryGetValue(CorrelationIdHeaderName, out StringValues correlationId);
-
-            return correlationId.FirstOrDefault() ?? context.TraceIdentifier;
-        }
+        return correlationId.FirstOrDefault() ?? context.TraceIdentifier;
     }
 }

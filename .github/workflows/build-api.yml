@@ -1,0 +1,45 @@
+# .github/workflows/build-api.yml
+name: Build API Workflow
+
+on:
+  workflow_call:
+    inputs:
+      branch:
+        required: true
+        type: string
+        description: "The branch being built"
+      working_directory:
+        required: true
+        type: string
+        description: "The working directory for the API"
+
+jobs:
+  build_api:
+    name: Build API
+    runs-on: ubuntu-latest
+
+    steps:
+      # Checkout the code
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      # Set up .NET Core SDK
+      - name: Setup .NET Core SDK
+        uses: actions/setup-dotnet@v3
+        with:
+          dotnet-version: '8.x'
+
+      # Restore .NET packages
+      - name: Restore .NET packages
+        run: |
+          dotnet restore TheFullStackTeam.Backend.sln
+          echo "Restore completed successfully"
+        working-directory: ${{ inputs.working_directory }}
+
+      # Build .NET solution
+      - name: Build .NET Solution
+        run: |
+          dotnet build TheFullStackTeam.Backend.sln --configuration Release
+          echo "Build completed successfully"
+        working-directory: ${{ inputs.working_directory }}
+        if: always()

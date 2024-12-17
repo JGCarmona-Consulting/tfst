@@ -8,7 +8,18 @@ locals {
   location                = local.environment_vars.locals.location
   tfstate_rg_name         = try(local.environment_vars.locals.tfstate_rg_name, "tfst-tfstate-${local.environment_name}")
   tfstate_storage_account = try(local.environment_vars.locals.tfstate_storage_account, "tfsttfstate${local.environment_name}")
+
+  # Get environment variables with default fallback
+  admin_username = get_env("SQL_ADMIN_USERNAME", "")
+  admin_password = get_env("SQL_ADMIN_PASSWORD", "")
+
+  # Validate missing variables
+  missing_variables = [for key, value in { "SQL_ADMIN_USERNAME" = local.admin_username, "SQL_ADMIN_PASSWORD" = local.admin_password } : key if value == ""]
+
+  # Throw an error if variables are missing
+  validation_error = length(local.missing_variables) > 0 ? error("Missing required environment variables: ${join(", ", local.missing_variables)}") : null
 }
+
 
 # Generate an Azure provider block
 generate "provider" {
@@ -31,7 +42,7 @@ generate "versions" {
       required_providers {
         azurerm = {
           source  = "hashicorp/azurerm"
-          version = ">=4.8.0" # Minimum version required for the azurerm_client_config data source
+          version = "~> 4.11.0"
         }
       }
     }

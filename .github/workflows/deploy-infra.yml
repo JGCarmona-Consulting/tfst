@@ -1,0 +1,84 @@
+# .github/workflows/deploy-infra.yml
+name: Deploy Infrastructure Workflow
+
+on:
+  workflow_call:
+    inputs:   
+      environment:
+        required: true
+        type: string
+        description: "The deployment environment (e.g., dev, prod)"
+      working_directory:
+        required: true
+        type: string
+        description: "The working directory for the environment (e.g., infrastructure/envs/dev)"
+    secrets:
+      AZURE_CREDENTIALS:
+        required: true
+      ARM_CLIENT_ID:
+        required: true
+      ARM_CLIENT_SECRET:
+        required: true
+      ARM_SUBSCRIPTION_ID:
+        required: true
+      ARM_TENANT_ID:
+        required: true
+      SQL_ADMIN_PASSWORD:
+        required: true
+        description: "The password for the SQL Server admin user"
+      SQL_ADMIN_USERNAME:
+        required: true
+        description: "The username for the SQL Server admin user"
+
+
+jobs:
+  deploy_infra:
+    name: Deploy Infrastructure  to ${{ inputs.environment }}
+    runs-on: ubuntu-latest
+    environment: ${{ inputs.environment }}
+
+    steps:
+      # Checkout code
+      - name: Checkout code
+        uses: actions/checkout@v4
+          
+      # Login to Azure
+      - name: Login to Azure
+        uses: azure/login@v1
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+      # Install Terraform and Terragrunt
+      - name: Install Terraform and Terragrunt
+        run: |
+          sudo apt-get update && sudo apt-get install -y unzip
+          curl -fsSL https://releases.hashicorp.com/terraform/1.9.8/terraform_1.9.8_linux_amd64.zip -o terraform.zip
+          unzip -o terraform.zip -d /usr/local/bin/
+          curl -fsSL https://github.com/gruntwork-io/terragrunt/releases/download/v0.69.0/terragrunt_linux_amd64 -o /usr/local/bin/terragrunt
+          chmod +x /usr/local/bin/terragrunt
+
+      # Generate Plan
+      - name: Plan Infrastructure Changes
+        run: |
+          cd ${{ inputs.working_directory }}
+          terragrunt run-all plan -out=tfplan
+        env:
+          ARM_CLIENT_ID: ${{ secrets.ARM_CLIENT_ID }}
+          ARM_CLIENT_SECRET: ${{ secrets.ARM_CLIENT_SECRET }}
+          ARM_SUBSCRIPTION_ID: ${{ secrets.ARM_SUBSCRIPTION_ID }}
+          ARM_TENANT_ID: ${{ secrets.ARM_TENANT_ID }}
+          SQL_ADMIN_PASSWORD: ${{ secrets.SQL_ADMIN_PASSWORD }}
+          SQL_ADMIN_USERNAME: ${{ secrets.SQL_ADMIN_USERNAME }}
+
+      # Apply Plan
+      - name: Apply Infrastructure Changes
+        run: |
+          cd ${{ inputs.working_directory }}
+          terragrunt run-all apply tfplan --terragrunt-non-interactive
+        env:
+          ARM_CLIENT_ID: ${{ secrets.ARM_CLIENT_ID }}
+          ARM_CLIENT_SECRET: ${{ secrets.ARM_CLIENT_SECRET }}
+          ARM_SUBSCRIPTION_ID: ${{ secrets.ARM_SUBSCRIPTION_ID }}
+          ARM_TENANT_ID: ${{ secrets.ARM_TENANT_ID }}
+          SQL_ADMIN_PASSWORD: ${{ secrets.SQL_ADMIN_PASSWORD }}
+          SQL_ADMIN_USERNAME: ${{ secrets.SQL_ADMIN_USERNAME }}

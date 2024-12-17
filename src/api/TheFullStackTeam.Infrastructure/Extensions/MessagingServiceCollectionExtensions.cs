@@ -12,7 +12,7 @@ public static class MessagingServiceCollectionExtensions
     {
         var featureFlags = configuration.GetSection("FeatureFlags").Get<FeatureFlags>();
 
-        switch (featureFlags.MessagingProvider.ToLower())
+        switch (featureFlags?.MessagingProvider.ToLower())
         {
             case "rabbitmq":
                 var rabbitMQSettings = new RabbitMQSettings();

@@ -1,0 +1,88 @@
+# .github/workflows/deploy-api.yml
+name: Deploy API
+
+on:
+  workflow_call:
+    inputs:
+      environment:
+        required: true
+        type: string
+        description: "The deployment environment (e.g., dev, prod)"
+      branch:
+        required: true
+        type: string
+        description: "The branch being deployed"
+      working_directory:
+        required: true
+        type: string
+        description: "The working directory for the API project"
+      solution_name:
+        required: true
+        type: string
+        description: "The name of the .NET solution file"
+      app_service_name:
+        required: true
+        type: string
+        description: "The Azure App Service name for deployment"
+    secrets:
+      AZURE_CREDENTIALS:
+        required: true
+
+jobs:
+  deploy_api:
+    name: Deploy API to ${{ inputs.environment }}
+    runs-on: ubuntu-latest
+    environment: ${{ inputs.environment }}
+
+    steps:
+      # Debug Inputs
+      - name: Debug Inputs
+        run: |
+          echo "Environment: ${{ inputs.environment }}"
+          echo "Branch: ${{ inputs.branch }}"
+          echo "Working Directory: ${{ inputs.working_directory }}"
+          echo "Solution Name: ${{ inputs.solution_name }}"
+          echo "App Service Name: ${{ inputs.app_service_name }}"
+
+      # Checkout code
+      - name: Checkout code
+        uses: actions/checkout@v4        
+        
+      # Login to Azure
+      - name: Login to Azure
+        uses: azure/login@v1
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+      # Set up .NET Core SDK
+      - name: Setup .NET Core SDK
+        uses: actions/setup-dotnet@v3
+        with:
+          dotnet-version: '8.x'
+      
+      # Restore .NET packages
+      - name: Restore .NET packages
+        run: |
+          dotnet restore ${{ inputs.solution_name }}
+        working-directory: ${{ inputs.working_directory }}
+
+      # Build .NET solution
+      - name: Build .NET Solution
+        run: |
+          dotnet build ${{ inputs.solution_name }} --configuration Release --no-restore
+        working-directory: ${{ inputs.working_directory }}
+
+      # Publish .NET Solution
+      - name: Publish .NET Solution
+        run: |
+          dotnet publish ${{ inputs.solution_name }} \
+            --configuration Release \
+            --no-build \
+            --output ${{ github.workspace }}/publish
+        working-directory: ${{ inputs.working_directory }}
+      
+      - name: Deploy API to Azure App Service
+        uses: azure/webapps-deploy@v2
+        with:
+          app-name: ${{ inputs.app_service_name }}
+          package: ${{ github.workspace }}/publish

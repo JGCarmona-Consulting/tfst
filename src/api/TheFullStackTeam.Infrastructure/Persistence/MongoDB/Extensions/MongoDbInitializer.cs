@@ -3,56 +3,55 @@ using Microsoft.Extensions.Logging;
 using MongoDB.Bson;
 using MongoDB.Driver;
 
-namespace TheFullStackTeam.Infrastructure.Persistence.MongoDB.Extensions
+namespace TheFullStackTeam.Infrastructure.Persistence.MongoDB.Extensions;
+
+public class MongoDbInitializer
 {
-    public class MongoDbInitializer
+    private readonly IMongoDatabase _database;
+    private readonly ILogger<MongoDbInitializer> _logger;
+
+    public MongoDbInitializer(IMongoDatabase database, ILogger<MongoDbInitializer> logger)
     {
-        private readonly IMongoDatabase _database;
-        private readonly ILogger<MongoDbInitializer> _logger;
+        _database = database;
+        _logger = logger;
+    }
 
-        public MongoDbInitializer(IMongoDatabase database, ILogger<MongoDbInitializer> logger)
+    public async Task EnsureDatabaseIsReady()
+    {
+        try
         {
-            _database = database;
-            _logger = logger;
-        }
+            _logger.LogInformation("Checking MongoDB connection...");
+            var result = await _database.RunCommandAsync((Command<BsonDocument>)"{ping:1}");
+            _logger.LogInformation("Successfully connected to MongoDB.");
 
-        public async Task EnsureDatabaseIsReady()
+
+            await InitializeIndexes();
+        }
+        catch (Exception ex)
         {
-            try
-            {
-                _logger.LogInformation("Checking MongoDB connection...");
-                var result = await _database.RunCommandAsync((Command<BsonDocument>)"{ping:1}");
-                _logger.LogInformation("Successfully connected to MongoDB.");
-
-
-                await InitializeIndexes();
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Failed to connect to MongoDB.");
-                throw;
-            }
+            _logger.LogError(ex, "Failed to connect to MongoDB.");
+            throw;
         }
+    }
 
-        private async Task InitializeIndexes()
-        {           
+    private async Task InitializeIndexes()
+    {           
 
-            // Initialize indexes for AccountView 
-            var accountCollection = _database.GetCollection<AccountView>("Accounts");
-            var userIndexKeys = Builders<AccountView>.IndexKeys
-                .Ascending(u => u.EntityId)
-                .Ascending(u => u.Version);
-            var userIndexModel = new CreateIndexModel<AccountView>(userIndexKeys);
-            await accountCollection.Indexes.CreateOneAsync(userIndexModel);
+        // Initialize indexes for AccountView 
+        var accountCollection = _database.GetCollection<AccountView>("Accounts");
+        var userIndexKeys = Builders<AccountView>.IndexKeys
+            .Ascending(u => u.EntityId)
+            .Ascending(u => u.Version);
+        var userIndexModel = new CreateIndexModel<AccountView>(userIndexKeys);
+        await accountCollection.Indexes.CreateOneAsync(userIndexModel);
 
-            var userProfileCollection = _database.GetCollection<UserProfileView>("UserProfiles");
-            var userProfileIndexKeys = Builders<UserProfileView>.IndexKeys
-                .Ascending(up => up.EntityId)
-                .Ascending(up => up.Version);
-            var userProfileIndexModel = new CreateIndexModel<UserProfileView>(userProfileIndexKeys);
-            await userProfileCollection.Indexes.CreateOneAsync(userProfileIndexModel);
+        var userProfileCollection = _database.GetCollection<UserProfileView>("UserProfiles");
+        var userProfileIndexKeys = Builders<UserProfileView>.IndexKeys
+            .Ascending(up => up.EntityId)
+            .Ascending(up => up.Version);
+        var userProfileIndexModel = new CreateIndexModel<UserProfileView>(userProfileIndexKeys);
+        await userProfileCollection.Indexes.CreateOneAsync(userProfileIndexModel);
 
-            _logger.LogInformation("Indexes for MongoDB collections initialized successfully.");
-        }
+        _logger.LogInformation("Indexes for MongoDB collections initialized successfully.");
     }
 }

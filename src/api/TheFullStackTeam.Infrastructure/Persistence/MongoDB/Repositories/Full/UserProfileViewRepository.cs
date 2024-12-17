@@ -1,14 +1,14 @@
-﻿using TheFullStackTeam.Domain.Repositories.Full;
+﻿using Microsoft.Extensions.Logging;
+using TheFullStackTeam.Domain.Repositories.Full;
 using TheFullStackTeam.Domain.Views;
 using TheFullStackTeam.Infrastructure.Repositories.MongoDB.Repositories;
-using MongoDB.Driver;
 
-namespace TheFullStackTeam.Infrastructure.Persistence.MongoDB.Repositories.Full
+namespace TheFullStackTeam.Infrastructure.Persistence.MongoDB.Repositories.Full;
+
+public class UserProfileViewRepository : MongoRepository<UserProfileView>, IUserProfileViewRepository
 {
-    public class UserProfileViewRepository : MongoRepository<UserProfileView>, IUserProfileViewRepository
+    public UserProfileViewRepository(MongoDbWrapper mongoDbWrapper, ILogger<MongoRepository<UserProfileView>> logger)
+        : base(mongoDbWrapper, "UserProfiles", logger)
     {
-        public UserProfileViewRepository(IMongoDatabase database) : base(database, "UserProfiles")
-        {
-        }
     }
 }

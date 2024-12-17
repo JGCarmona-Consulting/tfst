@@ -418,3 +418,4 @@ FodyWeavers.xsd
 /src/api/infrastructure/docker/seq-data
 /src/api/infrastructure/docker/rabbitmq-data
 /src/api/infrastructure/docker/mongo-data
+.secrets
