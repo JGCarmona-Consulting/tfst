@@ -9,4 +9,8 @@ public class TokenResponse
 
     [JsonPropertyName("token_type")]
     public string TokenType { get; set; } = "bearer";
+
+    [JsonPropertyName("refresh-token")]
+    public string RefreshToken { get; set; } = string.Empty;
+    
 }

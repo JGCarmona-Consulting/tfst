@@ -43,4 +43,8 @@
 		<ProjectReference Include="..\TheFullStackTeam.Domain\TheFullStackTeam.Domain.csproj" />
 	</ItemGroup>
 
+	<ItemGroup>
+	  <Folder Include="Persistence\Sql\Migrations\" />
+	</ItemGroup>
+
 </Project>

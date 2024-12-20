@@ -16,6 +16,7 @@ using TheFullStackTeam.Infrastructure.Persistence.Sql.Initialization;
 using TheFullStackTeam.Infrastructure.Persistence.Sql.Services;
 using TheFullStackTeam.Infrastructure.Services;
 using TheFullStackTeam.Common.Constants;
+using TheFullStackTeam.Application.Auth.Services;
 
 namespace TheFullStackTeam.API;
 
@@ -60,6 +61,7 @@ public class Program
         builder.Services.AddJwtAuthentication(builder.Configuration);
         builder.Services.AddEventDispatcher(builder.Configuration);
 
+        builder.Services.AddScoped<ITokenService, TokenService>();
         builder.Services.AddScoped<IPasswordHasher, PasswordHasher>();
         builder.Services.AddScoped<IMonikerService, MonikerService>();
         builder.Services.AddScoped<DatabaseInitializer>();

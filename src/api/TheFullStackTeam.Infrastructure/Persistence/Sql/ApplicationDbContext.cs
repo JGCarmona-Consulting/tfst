@@ -34,4 +34,7 @@ public class ApplicationDbContext : DbContext
 
         base.OnModelCreating(modelBuilder);
     }
+
+    public virtual DbSet<RefreshToken>? RefreshTokens { get; set; }
+
 }

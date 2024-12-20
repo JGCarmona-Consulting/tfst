@@ -16,6 +16,7 @@ public static class RepositoryServiceCollectionExtensions
         // Command repositories based on SQL
         services.AddScoped<IAccountCommandRepository, AccountCommandRepository>();
         services.AddScoped<ICommandRepository<UserProfile>, UserProfileCommandRepository>();
+        services.AddScoped<IRefreshTokenCommandRepository, RefreshTokenCommandRepository>();
 
 
         return services;

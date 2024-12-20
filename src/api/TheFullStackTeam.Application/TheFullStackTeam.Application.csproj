@@ -20,5 +20,6 @@
 	<ItemGroup>
 		<ProjectReference Include="..\TheFullStackTeam.Common\TheFullStackTeam.Common.csproj" />
 		<ProjectReference Include="..\TheFullStackTeam.Domain\TheFullStackTeam.Domain.csproj" />
+		<ProjectReference Include="..\TheFullStackTeam.Infrastructure\TheFullStackTeam.Infrastructure.csproj" />
 	</ItemGroup>
 </Project>

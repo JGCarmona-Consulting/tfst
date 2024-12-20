@@ -10,9 +10,9 @@ public class AccountCommandRepository : CommandRepository<Account>, IAccountComm
     {
     }
 
-    public Task<Account?> GetByEmailAsync(string name)
+    public async Task<Account?> GetByEmailAsync(string name)
     {
-        return _context.Accounts
+        return await _context.Accounts
             .Include(a => a.Profiles)
             .FirstOrDefaultAsync(u => u.Email == name);
     }

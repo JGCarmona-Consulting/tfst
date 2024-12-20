@@ -18,19 +18,25 @@ public static class AuthenticationServiceCollectionExtensions
         }
 
         var keyBytes = Encoding.ASCII.GetBytes(jwtSettings.Key);
+        var tokenValidationParameters = new TokenValidationParameters
+        {
+            ValidateIssuerSigningKey = true,
+            IssuerSigningKey = new SymmetricSecurityKey(keyBytes),
+            ValidateIssuer = true,
+            ValidateAudience = true,
+            ValidateLifetime = true,
+            RequireExpirationTime = true,
+            ClockSkew = TimeSpan.Zero,
+            ValidIssuer = jwtSettings.Issuer,
+            ValidAudience = jwtSettings.Audience
+        };
+        services.AddSingleton(tokenValidationParameters);
+
         services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
             .AddJwtBearer(options =>
             {
-                options.TokenValidationParameters = new TokenValidationParameters
-                {
-                    ValidateIssuer = true,
-                    ValidateAudience = true,
-                    ValidateLifetime = true,
-                    ValidateIssuerSigningKey = true,
-                    ValidIssuer = jwtSettings.Issuer,
-                    ValidAudience = jwtSettings.Audience,
-                    IssuerSigningKey = new SymmetricSecurityKey(keyBytes)
-                };
+                options.SaveToken = true;
+                options.TokenValidationParameters = tokenValidationParameters;
             });
         return services;
     }

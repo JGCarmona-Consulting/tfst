@@ -28,4 +28,16 @@ public class AuthController : ControllerBase
 
         return Ok(tokenResponse);
     }
+
+    [HttpPost("refreshToken")]
+    public async Task<IActionResult> RefreshToken([FromForm] string token, [FromForm] string refreshToken)
+    {
+        var command = new RefreshTokenCommand(token, refreshToken);
+        var tokenResponse = await _mediator.Send(command);
+
+        if (tokenResponse == null)
+            return Unauthorized(new { message = "Incorrect token or refresh token" });
+
+        return Ok(tokenResponse);
+    }
 }
